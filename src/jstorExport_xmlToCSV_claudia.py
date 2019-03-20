@@ -1,11 +1,11 @@
 from bs4 import BeautifulSoup
 import os
 import csv
+import numpy as np
 
 #file_root = "./economics_journals_1960/"
 #save_file = "./1960.csv"
-file_root = "/Users/claudiashi/Dropbox/Unpopulareconideas/data/jstorExport/economics_journals_1960/"
-save_file = "/Users/claudiashi/Dropbox/Unpopulareconideas/data/claudia/1960.csv"
+
 
 
 def get_row(path):
@@ -35,13 +35,40 @@ def get_row(path):
             return []
             
         article_title = soup.find('article-title').get_text()
-        journal_title = soup.find('journal-title').get_text()
+        if soup.find('journal-title') is not None:
+            journal_title = soup.find('journal-title').get_text()
+        else:
+            journal_title = 'none'
 
         pub_date = soup.find('pub-date')
-        month = pub_date.month.get_text()
-        year = pub_date.year.get_text()
+        if pub_date is not None:
+
+            if pub_date.find("month") is None and pub_date.find("year") is not None:
+
+                month = "none"
+                year = pub_date.year.get_text()
+
+            if pub_date.find("year") is None and pub_date.find("month") is not None:
+                month = pub_date.month.get_text()
+                year = "none"
+
+            if pub_date.find("month") is not None and pub_date.find("year") is not None:
+
+                month = pub_date.month.get_text()
+                year = pub_date.year.get_text()
+        else:
+            month = "none"
+            year = "none"
+
+        all_cites = []
+        mix_citation = soup.findAll('mixed-citation')
+        #print("~~~~~~~~~~~~~~~~~~~", type(mix_citation))
+        if mix_citation is not None:
+            for citation in mix_citation:
+                all_cites.append(citation.get_text())
 
         article_len = ""
+
         if soup.find('lpage') and soup.find('fpage') and str.isnumeric(soup.find('lpage').get_text()) and str.isnumeric(soup.find('fpage').get_text()):
             article_len = str(int(soup.find('lpage').get_text()) - int(soup.find('fpage').get_text()))
 
@@ -55,7 +82,8 @@ def get_row(path):
         
         abstract = soup.find('abstract')
 
-        return [article_title, journal_title, month, year, contributors, article_len, abstract]
+
+        return [article_title, journal_title, month, year, contributors, article_len, all_cites, abstract]
 
 
 def xml_to_csv(save_file, file_root):
@@ -66,7 +94,7 @@ def xml_to_csv(save_file, file_root):
     """
     with open(save_file, 'w',newline='') as csv_file:
         writer = csv.writer(csv_file, delimiter=',')
-        head =['article','journal','month','year','authors','length','abstract']
+        head =['article','journal','month','year','authors','length','all_cites','abstract']
         writer.writerow(head)
         for xml_file in os.listdir(file_root): 
             row = get_row(os.path.join(file_root, xml_file))
@@ -74,11 +102,18 @@ def xml_to_csv(save_file, file_root):
                 writer.writerow(row)
 
 
-def main():
-    file_root =  "/Users/claudiashi/Dropbox/Unpopulareconideas/data/jstorExport/economics_journals_1960/"
-    save_file = "/Users/claudiashi/Dropbox/Unpopulareconideas/data/claudia/1960.csv"
 
-    xml_to_csv(save_file, file_root)
+def main():
+    for i in range(59):
+        num = 1960 + i
+        print("Saving file: ", num)
+        file_root = "/Users/claudiashi/Dropbox/Unpopulareconideas/data/jstorExport/economics_journals_" + str(num) + "/"
+        save_file = "/Users/claudiashi/Dropbox/Unpopulareconideas/data/csv/" + str(num) + ".csv"
+
+        file_root = file_root
+        save_file = save_file
+
+        xml_to_csv(save_file, file_root)
 
 
 main()
