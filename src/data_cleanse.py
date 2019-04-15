@@ -2,12 +2,15 @@ from ast import literal_eval
 import numpy as np
 import pandas as pd
 
+
+
 dir_path = '/Users/claudiashi/Dropbox/Unpopulareconideas/data/all_csv/csv/'
 save_path = '/Users/claudiashi/Dropbox/Unpopulareconideas/data/all_csv/csv_top5/'
 def load_data(year=1960, dir_path=dir_path):
     file_path = dir_path + str(year) + ".csv"
     df = pd.read_csv(file_path, delimiter=",")
     return df
+
 
 approved_list=['Journal of Political Economy','Econometrica', 'The Quarterly Journal of Economics'
 'The American Economic Review','The Review of Economic Studies']
@@ -26,7 +29,7 @@ def delete_rows(df):
     return df
 
 
-def clearn_author(df):
+def clean_author(df):
     df.authors = [elem.replace("[", "").replace("]", "") for elem in df.authors.values]
     df.authors = [elem.replace("'", "").replace("'", "") for elem in df.authors]
     return df
@@ -42,9 +45,10 @@ def main(year):
 
     df = load_data(year, dir_path)
     df = delete_rows(df)
-    df = clearn_author(df)
+    df = clean_author(df)
     df = clean_duplicate(df)
     df.to_csv(save_path + '{}.csv'.format(year))
+
     print("the length of the file is: ", len(df.authors))
     return df
 
@@ -65,7 +69,7 @@ def get_all_author():
 
 if __name__ == '__main__':
     counter = 0
-    for i in range(59):
+    for i in range(58):
         year = 1960 + i
         print("year is, ", year)
         main(year)

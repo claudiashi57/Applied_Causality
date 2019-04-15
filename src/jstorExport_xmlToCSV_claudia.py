@@ -94,21 +94,23 @@ def xml_to_csv(save_file, file_root):
     """
     with open(save_file, 'w',newline='') as csv_file:
         writer = csv.writer(csv_file, delimiter=',')
-        head =['article','journal','month','year','authors','length','all_cites','abstract']
+        head =['article','journal','month','year','authors','length','all_cites','abstract', 'id']
         writer.writerow(head)
-        for xml_file in os.listdir(file_root): 
+        for xml_file in os.listdir(file_root):
             row = get_row(os.path.join(file_root, xml_file))
             if row:
+                #print(str(xml_file)[16:-4])
+                row.append(str(xml_file)[16:-4])
+
                 writer.writerow(row)
 
 
-
 def main():
-    for i in range(59):
-        num = 1960 + i
+    for i in range(1):
+        num = 2018
         print("Saving file: ", num)
         file_root = "/Users/claudiashi/Dropbox/Unpopulareconideas/data/jstorExport/economics_journals_" + str(num) + "/"
-        save_file = "/Users/claudiashi/Dropbox/Unpopulareconideas/data/csv/" + str(num) + ".csv"
+        save_file = "/Users/claudiashi/Dropbox/Unpopulareconideas/data/all_csv/csv/" + str(num) + ".csv"
 
         file_root = file_root
         save_file = save_file
